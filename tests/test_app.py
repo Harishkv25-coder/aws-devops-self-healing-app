@@ -21,7 +21,7 @@ class TestApplication(unittest.TestCase):
     def test_version_endpoint(self):
         response = self.client.get("/version")
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json["version"], "1.0.0")
+        self.assertEqual(response.json["version"], "1.1.0")
 
 
 if __name__ == "__main__":
