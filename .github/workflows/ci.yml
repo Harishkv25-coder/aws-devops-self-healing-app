@@ -85,7 +85,7 @@ jobs:
               "runuser -u ec2-user -- git -C /home/ec2-user/github-project reset --hard origin/main",
               "runuser -u ec2-user -- /home/ec2-user/devops-venv/bin/pip install -r /home/ec2-user/github-project/app/requirements.txt",
               "systemctl restart devops-webapp",
-              "systemctl is-active --quiet devops-webapp",
+              "for i in $(seq 1 12); do if curl -fsS http://127.0.0.1:5000/health >/dev/null; then break; fi; sleep 5; done",
               "curl -fsS http://127.0.0.1:5000/health"
             ]' \
             --query "Command.CommandId" \
