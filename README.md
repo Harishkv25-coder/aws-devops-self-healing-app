@@ -8,7 +8,7 @@ The application is built using Python Flask and deployed on an Amazon EC2 instan
 
 The solution also includes automated application health checks, recovery using AWS Lambda and EventBridge Scheduler, centralized monitoring with Amazon CloudWatch, email notifications through Amazon SNS, and application backups to Amazon S3.
 
-### Project Objectives
+## Project Objectives
 
 - Automate application testing and deployment.
 - Implement secure AWS access using GitHub OIDC.
@@ -16,6 +16,27 @@ The solution also includes automated application health checks, recovery using A
 - Automatically recover the application when its health check fails.
 - Back up application files to Amazon S3.
 - Demonstrate practical AWS DevOps skills.
+
+## Technologies Used
+
+| Category | Technologies |
+|---|---|
+| Cloud Platform | AWS |
+| Compute | Amazon EC2 |
+| CI/CD | GitHub Actions |
+| Version Control | Git, GitHub |
+| Programming Language | Python 3 |
+| Web Framework | Flask |
+| Application Server | Gunicorn |
+| Authentication | AWS IAM OIDC |
+| Remote Management | AWS Systems Manager (SSM) |
+| Monitoring | Amazon CloudWatch |
+| Notifications | Amazon SNS |
+| Serverless Recovery | AWS Lambda |
+| Scheduling | Amazon EventBridge Scheduler |
+| Backup Storage | Amazon S3 |
+| Operating System | Amazon Linux 2023 |
+| Testing | Python unittest |
 
 ## AWS Architecture
 
