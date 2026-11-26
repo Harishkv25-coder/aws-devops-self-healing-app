@@ -55,3 +55,32 @@ The following diagram illustrates the architecture of the Automated CI/CD Pipeli
 7. **Automated Health Checks:** Amazon EventBridge Scheduler invokes Lambda every five minutes.
 8. **Self-Healing:** AWS Lambda checks application health and uses AWS Systems Manager to restart the application when unhealthy.
 9. **Backup:** A scheduled backup script creates application archives and uploads them to Amazon S3.
+
+## Key Project Features
+
+### 1. Automated CI/CD Pipeline
+
+- GitHub Actions automatically triggers the pipeline when code is pushed to the main branch.
+- Runs Python unit tests before deployment.
+- Uses AWS IAM OIDC for secure authentication.
+- Deploys the application to EC2 through AWS Systems Manager.
+
+### 2. Self-Healing Application
+
+- EventBridge Scheduler invokes the recovery Lambda function every five minutes.
+- Lambda checks the application's health endpoint.
+- If the application is unhealthy, Lambda uses SSM to restart the application service.
+- Performs another health check to verify recovery.
+
+### 3. Monitoring and Logging
+
+- CloudWatch monitors EC2 system metrics.
+- CloudWatch Agent collects system and application logs.
+- CloudWatch alarms monitor CPU utilization.
+- SNS provides email notifications.
+
+### 4. Automated Backup
+
+- A scheduled backup script creates compressed application archives.
+- Backup files are uploaded to a private Amazon S3 bucket.
+- Backup download and extraction have been manually verified.
