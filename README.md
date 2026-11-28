@@ -2,175 +2,178 @@
 
 ## Project Overview
 
-This project demonstrates an automated CI/CD pipeline and a self-healing web application hosted on AWS.
+This project demonstrates an automated DevOps workflow for deploying and monitoring a Python Flask web application on AWS.
 
-The application is built using Python Flask and deployed on an Amazon EC2 instance through GitHub Actions. AWS Systems Manager (SSM) enables secure remote deployment without requiring SSH access from the pipeline.
+It integrates GitHub Actions for CI/CD, AWS Systems Manager for remote deployment and recovery, Amazon CloudWatch for monitoring and logging, and AWS Lambda with EventBridge Scheduler for automated application health checks and self-healing.
 
-The solution also includes automated application health checks, recovery using AWS Lambda and EventBridge Scheduler, centralized monitoring with Amazon CloudWatch, email notifications through Amazon SNS, and application backups to Amazon S3.
+The objective is to reduce manual intervention, improve application availability, and demonstrate practical AWS and DevOps skills.
 
-## Project Objectives
+## Architecture
 
-- Automate application testing and deployment.
-- Implement secure AWS access using GitHub OIDC.
-- Monitor EC2 metrics and application logs.
-- Automatically recover the application when its health check fails.
-- Back up application files to Amazon S3.
-- Demonstrate practical AWS DevOps skills.
+**Workflow:**
 
-## Technologies Used
+1. Developer pushes code to GitHub.
+2. GitHub Actions automatically runs Python tests.
+3. If tests pass, the deployment workflow connects to AWS using OIDC authentication.
+4. AWS Systems Manager sends deployment commands to the EC2 instance.
+5. The Flask application runs as a systemd service using Gunicorn.
+6. CloudWatch collects system and application logs.
+7. EventBridge Scheduler invokes the recovery Lambda function every five minutes.
+8. Lambda checks application health through AWS Systems Manager.
+9. If the application is unhealthy, Lambda attempts to restart the application service and verifies recovery.
+10. Scheduled backup scripts upload application backups to Amazon S3.
 
-| Category | Technologies |
+## AWS Services and Tools
+
+| Service / Tool | Purpose |
 |---|---|
-| Cloud Platform | AWS |
-| Compute | Amazon EC2 |
-| CI/CD | GitHub Actions |
-| Version Control | Git, GitHub |
-| Programming Language | Python 3 |
-| Web Framework | Flask |
-| Application Server | Gunicorn |
-| Authentication | AWS IAM OIDC |
-| Remote Management | AWS Systems Manager (SSM) |
-| Monitoring | Amazon CloudWatch |
-| Notifications | Amazon SNS |
-| Serverless Recovery | AWS Lambda |
-| Scheduling | Amazon EventBridge Scheduler |
-| Backup Storage | Amazon S3 |
-| Operating System | Amazon Linux 2023 |
-| Testing | Python unittest |
+| Amazon EC2 | Hosts the Flask application |
+| AWS IAM | Access control and permissions |
+| GitHub Actions | CI/CD automation |
+| GitHub OIDC | Secure GitHub-to-AWS authentication |
+| AWS Systems Manager | Remote deployment and recovery commands |
+| AWS Lambda | Automated health checks and recovery |
+| Amazon EventBridge Scheduler | Triggers periodic health checks |
+| Amazon CloudWatch | Monitoring and log collection |
+| Amazon S3 | Application backup storage |
+| Python / Flask | Web application |
+| Gunicorn | Python application server |
+| systemd | Application service management |
+| Git | Version control |
 
-## AWS Architecture
+## Application Details
 
-The following diagram illustrates the architecture of the Automated CI/CD Pipeline with Self-Healing Web Application on AWS.
+**Application:** AWS DevOps Self-Healing Web Application
 
-![AWS Project Architecture](docs/aws-architecture.png)
+**Framework:** Flask
 
-### Architecture Workflow
+**Version:** 1.1.0
 
-1. **Source Code:** Application code is maintained in GitHub.
-2. **CI/CD:** GitHub Actions runs automated tests and deploys the application to EC2.
-3. **Secure Authentication:** AWS IAM OIDC provides secure GitHub Actions access to AWS.
-4. **Application Hosting:** Amazon EC2 hosts the Flask web application using Gunicorn.
-5. **Monitoring:** Amazon CloudWatch collects system metrics and application logs.
-6. **Notifications:** Amazon SNS sends email notifications.
-7. **Automated Health Checks:** Amazon EventBridge Scheduler invokes Lambda every five minutes.
-8. **Self-Healing:** AWS Lambda checks application health and uses AWS Systems Manager to restart the application when unhealthy.
-9. **Backup:** A scheduled backup script creates application archives and uploads them to Amazon S3.
+**Endpoints:**
 
-## Key Project Features
+- `/` – Application home page
+- `/health` – Application health check
+- `/version` – Displays application version
 
-### 1. Automated CI/CD Pipeline
+## CI/CD Pipeline
 
-- GitHub Actions automatically triggers the pipeline when code is pushed to the main branch.
-- Runs Python unit tests before deployment.
-- Uses AWS IAM OIDC for secure authentication.
-- Deploys the application to EC2 through AWS Systems Manager.
+The GitHub Actions workflow automates:
 
-### 2. Self-Healing Application
+- Python environment setup
+- Dependency installation
+- Automated unit testing
+- Deployment to AWS EC2
+- Remote execution through AWS Systems Manager
 
-- EventBridge Scheduler invokes the recovery Lambda function every five minutes.
-- Lambda checks the application's health endpoint.
-- If the application is unhealthy, Lambda uses SSM to restart the application service.
-- Performs another health check to verify recovery.
+The deployment workflow uses GitHub OIDC authentication rather than storing long-lived AWS access keys in GitHub repository secrets.
 
-### 3. Monitoring and Logging
+## Self-Healing Mechanism
 
-- CloudWatch monitors EC2 system metrics.
-- CloudWatch Agent collects system and application logs.
-- CloudWatch alarms monitor CPU utilization.
-- SNS provides email notifications.
+An EventBridge Scheduler triggers the Lambda recovery function every five minutes.
 
-### 4. Automated Backup
+The Lambda function:
 
-- A scheduled backup script creates compressed application archives.
-- Backup files are uploaded to a private Amazon S3 bucket.
-- Backup download and extraction have been manually verified.
-- Cron schedules automated backups daily at 2:00 AM IST.
+1. Sends a health-check command to the EC2 instance using Systems Manager.
+2. Checks the application's health endpoint.
+3. Records the command result in CloudWatch Logs.
+4. Attempts to restart `devops-webapp.service` if the application is unhealthy.
+5. Checks the application again and records the recovery result.
 
-## Project Screenshots
+## Monitoring and Logging
 
-The following screenshots demonstrate the deployed AWS infrastructure and the major components of the project.
+Amazon CloudWatch Agent collects:
 
-### 1. GitHub Actions – CI/CD Pipeline
+- System logs from `/var/log/messages`
+- Cloud-init logs from `/var/log/cloud-init-output.log`
+- Application service logs from journald
 
-![GitHub Actions CI/CD](docs/screenshots/github-actions-cicd.png)
+Configured CloudWatch log groups:
 
-Successful execution of Python unit tests and automated deployment to AWS EC2.
+- `DevOps-EC2-System-Logs`
+- `DevOps-EC2-CloudInit-Logs`
+- `DevOps-EC2-Application-Logs`
 
-### 2. Amazon EC2 – Application Hosting
+Log retention is configured for seven days.
 
-![Amazon EC2 Instance](docs/screenshots/ec2-instance.png)
+## Backup and Restore
 
-EC2 instance running with successful instance status checks.
+Application backups are created as timestamped archives and uploaded to Amazon S3.
 
-### 3. Amazon CloudWatch – Monitoring and Alarms
+The project includes:
 
-![CloudWatch Alarm Overview](docs/screenshots/cloudwatch-alarm-overview.png)
+- Automated backup uploads
+- S3 access restricted through IAM permissions
+- S3 Block Public Access enabled
+- Server-side encryption using SSE-S3
+- Backup download and extraction validation
 
-CloudWatch dashboard showing the EC2 CPU monitoring alarm in the OK state.
+## Security Practices
 
-### 4. AWS Lambda – Self-Healing Recovery
+- GitHub OIDC authentication for CI/CD
+- IAM policies scoped to required resources where practical
+- EC2 access through AWS Systems Manager Session Manager
+- SSH access restricted to the administrator's public IP
+- S3 public access blocked
+- S3 server-side encryption enabled
+- No AWS access keys committed to the repository
+- Separate IAM roles for EC2, Lambda and EventBridge Scheduler
 
-![Lambda Self-Healing](docs/screenshots/lambda-self-healing.png)
+## Repository Structure
 
-Lambda recovery function configured with an EventBridge Scheduler trigger.
+```text
+aws-devops-self-healing-app/
+│
+├── .github/
+│   └── workflows/
+│
+├── app/
+│   ├── app.py
+│   └── requirements.txt
+│
+├── tests/
+│   └── test_app.py
+│
+├── scripts/
+│
+├── docs/
+│   └── screenshots/
+│
+├── .gitignore
+└── README.md
+```
 
-### 5. Amazon S3 – Automated Backups
+## Testing and Validation
 
-![S3 Automated Backups](docs/screenshots/s3-automated-backups.png)
+The project has been validated through:
 
-Application backup archives stored in the private Amazon S3 bucket.
+- Successful local Python unit tests
+- Successful GitHub Actions CI execution
+- AWS EC2 application deployment
+- Application health endpoint verification
+- CloudWatch log collection
+- Scheduled Lambda health checks
+- Successful manual self-healing recovery test
+- S3 backup upload and restore validation
 
-### 6. Amazon EventBridge Scheduler – Health Checks
+## Skills Demonstrated
 
-![EventBridge Scheduler](docs/screenshots/eventbridge-scheduler.png)
+- AWS EC2 and IAM
+- Git and GitHub
+- GitHub Actions CI/CD
+- Python and Flask
+- AWS Systems Manager
+- AWS Lambda
+- Amazon EventBridge
+- Amazon CloudWatch
+- Amazon S3
+- Linux administration
+- systemd service management
+- Monitoring, troubleshooting and recovery automation
 
-Enabled schedule configured to invoke the self-healing recovery function every five minutes.
+## Project Objective
 
-## Testing and Validation Results
+This project demonstrates how DevOps practices and AWS services can be integrated to automate application delivery, monitoring, backup and recovery.
 
-The project components were tested and validated to confirm that the CI/CD pipeline, application deployment, monitoring, automated recovery, and backup processes work as expected.
+**Author:** Harish K V
 
-### 1. CI/CD Pipeline Validation
-
-- Python unit tests executed successfully using GitHub Actions.
-- Automated deployment to AWS EC2 completed successfully.
-- Latest verified GitHub Actions workflow completed with a successful status.
-- Both the testing and deployment jobs passed.
-
-### 2. Application Validation
-
-- Flask application service verified as active using systemd.
-- Health endpoint (`/health`) returned `{"status":"healthy"}`.
-- Version endpoint (`/version`) returned version `1.1.0`.
-- Application health was independently verified after deployment.
-
-### 3. Monitoring and Logging
-
-- CloudWatch EC2 monitoring configured.
-- CPU monitoring and CloudWatch alarms configured.
-- System, CloudInit, and application logs successfully collected in CloudWatch Logs.
-- SNS email subscription confirmed.
-- Direct SNS test notification successfully received.
-
-### 4. Self-Healing Validation
-
-- Lambda recovery function successfully tested by stopping the application service.
-- EventBridge Scheduler automatically invoked the recovery function.
-- Application service was restarted successfully.
-- Application health was independently verified after recovery.
-- Scheduled health checks successfully detected and recovered an unhealthy application.
-
-### 5. Automated Backup Validation
-
-- Application backup script successfully created compressed archives.
-- Manual S3 backup upload verified.
-- Backup download and extraction manually tested.
-- Cron-based scheduled backups successfully executed on two consecutive days.
-- Both scheduled backup files confirmed in the private Amazon S3 bucket.
-- Scheduled backups configured to execute daily at 2:00 AM IST.
-
-### Validation Summary
-
-The project successfully demonstrates automated CI/CD deployment, application health monitoring, scheduled self-healing, centralized logging, and automated application backups using AWS services.
-
-The implementation provides practical experience with AWS cloud infrastructure, automation, monitoring, deployment, and recovery operations.
+**GitHub Repository:** https://github.com/Harishkv25-coder/aws-devops-self-healing-app
