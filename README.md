@@ -86,6 +86,46 @@ The following diagram illustrates the architecture of the Automated CI/CD Pipeli
 - Backup download and extraction have been manually verified.
 - Cron schedules automated backups daily at 2:00 AM IST.
 
+## Project Screenshots
+
+The following screenshots demonstrate the deployed AWS infrastructure and the major components of the project.
+
+### 1. GitHub Actions – CI/CD Pipeline
+
+![GitHub Actions CI/CD](docs/screenshots/github-actions-cicd.png)
+
+Successful execution of Python unit tests and automated deployment to AWS EC2.
+
+### 2. Amazon EC2 – Application Hosting
+
+![Amazon EC2 Instance](docs/screenshots/ec2-instance.png)
+
+EC2 instance running with successful instance status checks.
+
+### 3. Amazon CloudWatch – Monitoring and Alarms
+
+![CloudWatch Alarm Overview](docs/screenshots/cloudwatch-alarm-overview.png)
+
+CloudWatch dashboard showing the EC2 CPU monitoring alarm in the OK state.
+
+### 4. AWS Lambda – Self-Healing Recovery
+
+![Lambda Self-Healing](docs/screenshots/lambda-self-healing.png)
+
+Lambda recovery function configured with an EventBridge Scheduler trigger.
+
+### 5. Amazon S3 – Automated Backups
+
+![S3 Automated Backups](docs/screenshots/s3-automated-backups.png)
+
+Application backup archives stored in the private Amazon S3 bucket.
+
+### 6. Amazon EventBridge Scheduler – Health Checks
+
+![EventBridge Scheduler](docs/screenshots/eventbridge-scheduler.png)
+
+Enabled schedule configured to invoke the self-healing recovery function every five minutes.
+
 ## Testing and Validation Results
 
 The project components were tested and validated to confirm that the CI/CD pipeline, application deployment, monitoring, automated recovery, and backup processes work as expected.
