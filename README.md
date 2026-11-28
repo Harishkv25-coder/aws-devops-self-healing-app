@@ -84,3 +84,53 @@ The following diagram illustrates the architecture of the Automated CI/CD Pipeli
 - A scheduled backup script creates compressed application archives.
 - Backup files are uploaded to a private Amazon S3 bucket.
 - Backup download and extraction have been manually verified.
+- Cron schedules automated backups daily at 2:00 AM IST.
+
+## Testing and Validation Results
+
+The project components were tested and validated to confirm that the CI/CD pipeline, application deployment, monitoring, automated recovery, and backup processes work as expected.
+
+### 1. CI/CD Pipeline Validation
+
+- Python unit tests executed successfully using GitHub Actions.
+- Automated deployment to AWS EC2 completed successfully.
+- Latest verified GitHub Actions workflow completed with a successful status.
+- Both the testing and deployment jobs passed.
+
+### 2. Application Validation
+
+- Flask application service verified as active using systemd.
+- Health endpoint (`/health`) returned `{"status":"healthy"}`.
+- Version endpoint (`/version`) returned version `1.1.0`.
+- Application health was independently verified after deployment.
+
+### 3. Monitoring and Logging
+
+- CloudWatch EC2 monitoring configured.
+- CPU monitoring and CloudWatch alarms configured.
+- System, CloudInit, and application logs successfully collected in CloudWatch Logs.
+- SNS email subscription confirmed.
+- Direct SNS test notification successfully received.
+
+### 4. Self-Healing Validation
+
+- Lambda recovery function successfully tested by stopping the application service.
+- EventBridge Scheduler automatically invoked the recovery function.
+- Application service was restarted successfully.
+- Application health was independently verified after recovery.
+- Scheduled health checks successfully detected and recovered an unhealthy application.
+
+### 5. Automated Backup Validation
+
+- Application backup script successfully created compressed archives.
+- Manual S3 backup upload verified.
+- Backup download and extraction manually tested.
+- Cron-based scheduled backups successfully executed on two consecutive days.
+- Both scheduled backup files confirmed in the private Amazon S3 bucket.
+- Scheduled backups configured to execute daily at 2:00 AM IST.
+
+### Validation Summary
+
+The project successfully demonstrates automated CI/CD deployment, application health monitoring, scheduled self-healing, centralized logging, and automated application backups using AWS services.
+
+The implementation provides practical experience with AWS cloud infrastructure, automation, monitoring, deployment, and recovery operations.
